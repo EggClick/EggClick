@@ -1,145 +1,173 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Кликер Яйцо</title>
-<style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #fff9e6; /* чуть желтый фон */
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    user-select: none;
-  }
-  #loginBtn {
-    font-size: 18px;
-    padding: 10px 20px;
-    cursor: pointer;
-    margin-top: 100px;
-    border: none;
-    border-radius: 6px;
-    background-color: #4285F4;
-    color: white;
-  }
-  #mainContent {
-    display: none;
-    width: 360px;
-    max-width: 100%;
-  }
-  #egg {
-    font-size: 120px;
-    cursor: pointer;
-    text-align: center;
-    user-select: none;
-    margin-bottom: 10px;
-  }
-  #clicks {
-    font-size: 24px;
-    margin-bottom: 15px;
-    text-align: center;
-  }
-  #shop, #skins {
-    margin-bottom: 20px;
-  }
-  .shop-item, .skin-item {
-    background: white;
-    border-radius: 8px;
-    padding: 10px;
-    margin-bottom: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  }
-  .shop-item button, .skin-item button {
-    cursor: pointer;
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    background-color: #4285F4;
-    color: white;
-  }
-  .skin-item button:disabled {
-    background-color: #aaa;
-    cursor: default;
-  }
-  #leaderboard {
-    background: white;
-    border-radius: 8px;
-    padding: 10px;
-    max-height: 180px;
-    overflow-y: auto;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  }
-  #leaderboard h3 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    text-align: center;
-  }
-  #leaderboard ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  #leaderboard li {
-    padding: 4px 0;
-    border-bottom: 1px solid #eee;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <title>🥚 Яичный Кликер 2.0 с Firebase</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #fdfbfb, #fff9e6); /* чуть желтоватый фон */
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      user-select: none;
+    }
+
+    h1 {
+      margin: 20px 0 10px;
+      font-size: 36px;
+      color: #333;
+    }
+
+    #egg {
+      font-size: 120px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
+    }
+
+    #egg:active {
+      transform: scale(0.9);
+    }
+
+    #counter {
+      margin: 15px;
+      font-size: 24px;
+      background: #fff;
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      color: #333;
+    }
+
+    .shop {
+      margin-top: 30px;
+      width: 320px;
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .shop h2 {
+      margin-top: 0;
+      font-size: 24px;
+      color: #444;
+    }
+
+    .item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+      padding: 10px;
+      background: #f8f8f8;
+      border-radius: 8px;
+    }
+
+    .item button {
+      background: #4caf50;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .item button:hover:not(.disabled) {
+      background: #45a049;
+    }
+
+    .upgrade {
+      background: #2196f3;
+    }
+
+    .upgrade:hover:not(.disabled) {
+      background: #1976d2;
+    }
+
+    .disabled {
+      background: #ccc !important;
+      cursor: not-allowed;
+    }
+
+    .skins {
+      margin-top: 20px;
+    }
+
+    .skins select {
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    #loginBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background: #4285F4;
+      color: white;
+      transition: background 0.3s;
+    }
+
+    #loginBtn:hover {
+      background: #357ae8;
+    }
+
+    #userInfo {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #555;
+    }
+  </style>
 </head>
 <body>
+  <h1>🥚 Яичный Кликер 2.0</h1>
 
-<button id="loginBtn">Войти через Google</button>
+  <button id="loginBtn">Войти через Google</button>
+  <div id="userInfo"></div>
 
-<div id="mainContent">
-  <div id="egg">🥚</div>
-  <div id="clicks">Клики: 0</div>
+  <div id="game" style="display:none;">
+    <div id="egg">🥚</div>
+    <div id="counter">Клики: 0</div>
 
-  <div id="shop">
-    <h3>Магазин</h3>
-    <div class="shop-item">
-      <div>Ферма (200 🥚) — максимум 5</div>
-      <button id="buyFarmBtn">Купить</button>
+    <div class="shop">
+      <h2>Магазин</h2>
+      <div class="item">
+        <span>Ферма 🏡 x <span id="farm-count">0</span></span>
+        <button id="buyFarmBtn">Купить (200🥚)</button>
+      </div>
+      <div class="item">
+        <span>Улучшение ⬆️ (уровень <span id="farm-level">1</span>/10)</span>
+        <button id="upgradeBtn" class="upgrade">Улучшить (700🥚)</button>
+      </div>
     </div>
-    <div class="shop-item">
-      <div>Прокачка (+клики) (700 🥚) — максимум 10</div>
-      <button id="buyUpgradeBtn">Купить</button>
-    </div>
-    <div class="shop-item">
-      <div>Новое улучшение (1500 🥚)</div>
-      <button id="buyNewItemBtn">Купить</button>
-    </div>
-  </div>
 
-  <div id="skins">
-    <h3>Скины (платные)</h3>
-    <div class="skin-item">
-      <div>Цыпленок 🐥 — 5000 🥚</div>
-      <button id="buyChickenSkinBtn">Купить</button>
-    </div>
-    <div class="skin-item">
-      <div>Утёнок 🦆 — 8000 🥚</div>
-      <button id="buyDuckSkinBtn">Купить</button>
+    <div class="skins">
+      <label for="skinSelect"><strong>🎨 Скин яйца:</strong></label>
+      <select id="skinSelect">
+        <option value="🥚">Классика</option>
+        <option value="🐣">Цыплёнок (5000🥚)</option>
+        <option value="🍳">Яичница (10000🥚)</option>
+        <option value="🥚🥚">Двойное (15000🥚)</option>
+      </select>
     </div>
   </div>
-
-  <div id="leaderboard">
-    <h3>Таблица лидеров</h3>
-    <ul id="leaderboardList"></ul>
-  </div>
-</div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-firestore.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-auth.js";
 
-  // Конфиг Firebase
+  // Твоя конфигурация Firebase:
   const firebaseConfig = {
     apiKey: "AIzaSyDjLs-TCbJbpqdXhKwuu2t1cjTjWQHYB-g",
     authDomain: "eggclick-e90e2.firebaseapp.com",
@@ -152,241 +180,193 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-  const auth = getAuth();
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
 
-  const loginBtn = document.getElementById("loginBtn");
-  const mainContent = document.getElementById("mainContent");
-  const egg = document.getElementById("egg");
-  const clicksDisplay = document.getElementById("clicks");
+  const loginBtn = document.getElementById('loginBtn');
+  const userInfo = document.getElementById('userInfo');
+  const gameDiv = document.getElementById('game');
+  const egg = document.getElementById('egg');
+  const counterDisplay = document.getElementById('counter');
+  const farmCountDisplay = document.getElementById('farm-count');
+  const farmLevelDisplay = document.getElementById('farm-level');
+  const buyFarmBtn = document.getElementById('buyFarmBtn');
+  const upgradeBtn = document.getElementById('upgradeBtn');
+  const skinSelect = document.getElementById('skinSelect');
 
-  const buyFarmBtn = document.getElementById("buyFarmBtn");
-  const buyUpgradeBtn = document.getElementById("buyUpgradeBtn");
-  const buyNewItemBtn = document.getElementById("buyNewItemBtn");
-
-  const buyChickenSkinBtn = document.getElementById("buyChickenSkinBtn");
-  const buyDuckSkinBtn = document.getElementById("buyDuckSkinBtn");
-
-  const leaderboardList = document.getElementById("leaderboardList");
-
-  let user = null;
-
+  // Игровые данные
+  let userId = null;
   let clicks = 0;
-  let farms = 0;
-  let upgrades = 0;
-  let newItemBought = false;
-
+  let farmCount = 0;
+  let farmLevel = 1;
   let skin = "🥚";
 
-  // Цены и лимиты
+  // Ограничения
+  const MAX_FARMS = 5;
+  const MAX_LEVEL = 10;
   const FARM_PRICE = 200;
-  const FARM_MAX = 5;
-
   const UPGRADE_PRICE = 700;
-  const UPGRADE_MAX = 10;
 
-  const NEW_ITEM_PRICE = 1500;
-
-  const SKINS = {
-    "🐥": 5000,
-    "🦆": 8000
+  const SKIN_COSTS = {
+    "🥚": 0,
+    "🐣": 5000,
+    "🍳": 10000,
+    "🥚🥚": 15000
   };
 
-  let ownedSkins = new Set();
+  // Состояние купленных скинов
+  let ownedSkins = new Set(["🥚"]);
 
-  function save() {
-    if (!user) return;
+  loginBtn.onclick = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+    } catch(e) {
+      alert("Ошибка входа через Google: " + e.message);
+    }
+  };
 
-    // Сохраняем в Firestore
-    const userRef = doc(db, "users", user.uid);
-    updateDoc(userRef, {
-      clicks,
-      farms,
-      upgrades,
-      newItemBought,
-      skin,
-      ownedSkins: Array.from(ownedSkins),
-      lastSave: Date.now()
-    }).catch(console.error);
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      userId = user.uid;
+      userInfo.textContent = `Привет, ${user.displayName} (${user.email})`;
+      loginBtn.style.display = 'none';
+      gameDiv.style.display = 'block';
 
-    // Сохраняем локально на всякий
-    localStorage.setItem("clicks", clicks);
-    localStorage.setItem("farms", farms);
-    localStorage.setItem("upgrades", upgrades);
-    localStorage.setItem("newItemBought", newItemBought ? "1" : "0");
-    localStorage.setItem("skin", skin);
-    localStorage.setItem("ownedSkins", JSON.stringify(Array.from(ownedSkins)));
-  }
+      await loadGameData();
+      updateUI();
+    } else {
+      userInfo.textContent = "";
+      loginBtn.style.display = 'block';
+      gameDiv.style.display = 'none';
+    }
+  });
 
-  async function load() {
-    if (!user) return;
-
-    const userRef = doc(db, "users", user.uid);
-    const docSnap = await getDoc(userRef);
+  async function loadGameData() {
+    if (!userId) return;
+    const docRef = doc(db, "clickerUsers", userId);
+    const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       const data = docSnap.data();
       clicks = data.clicks || 0;
-      farms = data.farms || 0;
-      upgrades = data.upgrades || 0;
-      newItemBought = data.newItemBought || false;
+      farmCount = data.farmCount || 0;
+      farmLevel = data.farmLevel || 1;
       skin = data.skin || "🥚";
-      ownedSkins = new Set(data.ownedSkins || []);
+      ownedSkins = new Set(data.ownedSkins || ["🥚"]);
     } else {
-      // Новый пользователь — создаём запись
-      await setDoc(userRef, {
-        name: user.displayName,
-        clicks: 0,
-        farms: 0,
-        upgrades: 0,
-        newItemBought: false,
-        skin: "🥚",
-        ownedSkins: []
-      });
-      clicks = 0; farms = 0; upgrades = 0; newItemBought = false; skin = "🥚"; ownedSkins = new Set();
+      // Если данных нет, создаём начальные
+      await saveGameData();
     }
-
-    // Для подстраховки — подгружаем локал сторедж
-    clicks = +localStorage.getItem("clicks") || clicks;
-    farms = +localStorage.getItem("farms") || farms;
-    upgrades = +localStorage.getItem("upgrades") || upgrades;
-    newItemBought = localStorage.getItem("newItemBought") === "1" || newItemBought;
-    skin = localStorage.getItem("skin") || skin;
-    try {
-      const lsSkins = JSON.parse(localStorage.getItem("ownedSkins"));
-      if (Array.isArray(lsSkins)) ownedSkins = new Set(lsSkins);
-    } catch {}
-
-    updateUI();
   }
 
-  function updateUI() {
-    clicksDisplay.textContent = `Клики: ${clicks}`;
-    egg.textContent = skin;
-
-    buyFarmBtn.disabled = farms >= FARM_MAX || clicks < FARM_PRICE;
-    buyUpgradeBtn.disabled = upgrades >= UPGRADE_MAX || clicks < UPGRADE_PRICE;
-    buyNewItemBtn.disabled = newItemBought || clicks < NEW_ITEM_PRICE;
-
-    buyChickenSkinBtn.disabled = ownedSkins.has("🐥") || clicks < SKINS["🐥"];
-    buyDuckSkinBtn.disabled = ownedSkins.has("🦆") || clicks < SKINS["🦆"];
-  }
-
-  // Обновляем лидеров из Firebase
-  async function loadLeaderboard() {
-    leaderboardList.innerHTML = "";
-    const q = query(collection(db, "users"), orderBy("clicks", "desc"), limit(10));
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((docSnap) => {
-      const data = docSnap.data();
-      const name = data.name || "Неизвестно";
-      const score = data.clicks || 0;
-      const li = document.createElement("li");
-      li.textContent = `${name}: ${score} кликов`;
-      leaderboardList.appendChild(li);
+  async function saveGameData() {
+    if (!userId) return;
+    const docRef = doc(db, "clickerUsers", userId);
+    await setDoc(docRef, {
+      clicks,
+      farmCount,
+      farmLevel,
+      skin,
+      ownedSkins: Array.from(ownedSkins),
     });
   }
 
-  // Клики по яйцу
-  egg.addEventListener("click", () => {
-    clicks += 1 + upgrades;
-    updateUI();
-  });
+  function updateUI() {
+    counterDisplay.textContent = `Клики: ${clicks}`;
+    farmCountDisplay.textContent = farmCount;
+    farmLevelDisplay.textContent = farmLevel;
+    egg.textContent = skin;
 
-  // Покупка фермы
-  buyFarmBtn.onclick = () => {
-    if (clicks >= FARM_PRICE && farms < FARM_MAX) {
-      clicks -= FARM_PRICE;
-      farms++;
-      updateUI();
-      save();
+    buyFarmBtn.disabled = (farmCount >= MAX_FARMS || clicks < FARM_PRICE);
+    buyFarmBtn.classList.toggle('disabled', buyFarmBtn.disabled);
+
+    upgradeBtn.disabled = (farmLevel >= MAX_LEVEL || farmCount === 0 || clicks < UPGRADE_PRICE);
+    upgradeBtn.classList.toggle('disabled', upgradeBtn.disabled);
+
+    // Обновляем скин селектор — блокируем те, что нельзя купить (если нет)
+    for (let i = 0; i < skinSelect.options.length; i++) {
+      const opt = skinSelect.options[i];
+      const cost = SKIN_COSTS[opt.value];
+      opt.disabled = (!ownedSkins.has(opt.value) && clicks < cost);
+      // Если не владеешь и денег нет, заблокировать
     }
-  };
 
-  // Покупка прокачки
-  buyUpgradeBtn.onclick = () => {
-    if (clicks >= UPGRADE_PRICE && upgrades < UPGRADE_MAX) {
-      clicks -= UPGRADE_PRICE;
-      upgrades++;
-      updateUI();
-      save();
-    }
-  };
-
-  // Покупка нового улучшения (можешь добавить логику)
-  buyNewItemBtn.onclick = () => {
-    if (clicks >= NEW_ITEM_PRICE && !newItemBought) {
-      clicks -= NEW_ITEM_PRICE;
-      newItemBought = true;
-      alert("Вы купили новое улучшение! (Здесь можно добавить его действие)");
-      updateUI();
-      save();
-    }
-  };
-
-  // Покупка скинов
-  buyChickenSkinBtn.onclick = () => {
-    if (clicks >= SKINS["🐥"] && !ownedSkins.has("🐥")) {
-      clicks -= SKINS["🐥"];
-      skin = "🐥";
-      ownedSkins.add("🐥");
-      updateUI();
-      save();
-    }
-  };
-
-  buyDuckSkinBtn.onclick = () => {
-    if (clicks >= SKINS["🦆"] && !ownedSkins.has("🦆")) {
-      clicks -= SKINS["🦆"];
-      skin = "🦆";
-      ownedSkins.add("🦆");
-      updateUI();
-      save();
-    }
-  };
-
-  // Автоматические клики от ферм (каждые 2 секунды)
-  setInterval(() => {
-    if (farms > 0) {
-      // Фермы дают от 1 до 2 кликов за 2 секунды на каждую ферму
-      for (let i = 0; i < farms; i++) {
-        clicks += Math.floor(Math.random() * 2) + 1 + upgrades;
-      }
-      updateUI();
-      save();
-    }
-  }, 2000);
-
-  // Авторизация по кнопке
-  loginBtn.onclick = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, provider);
-      user = result.user;
-      loginBtn.style.display = "none";
-      mainContent.style.display = "block";
-      await load();
-      await loadLeaderboard();
-    } catch (error) {
-      alert("Ошибка входа через Google: " + error.message);
-    }
-  };
-
-  // Отслеживаем состояние авторизации
-  onAuthStateChanged(auth, async (usr) => {
-    if (usr) {
-      user = usr;
-      loginBtn.style.display = "none";
-      mainContent.style.display = "block";
-      await load();
-      await loadLeaderboard();
+    // Если текущий скин не в ownedSkins, переключить на классический
+    if (!ownedSkins.has(skin)) {
+      skin = "🥚";
+      skinSelect.value = skin;
+      saveGameData();
     } else {
-      user = null;
-      loginBtn.style.display = "block";
-      mainContent.style.display = "none";
+      skinSelect.value = skin;
     }
-  });
+  }
 
-  // Сохранять прогресс каждые 10 секунд
-  setInterval(save, 10000);
+  egg.onclick = async () => {
+    clicks += farmLevel; // Нажатие добавляет клики, с учётом уровня фермы
+    updateUI();
+    await saveGameData();
+  };
+
+  buyFarmBtn.onclick = async () => {
+    if (farmCount >= MAX_FARMS) {
+      alert("Максимум ферм достигнут");
+      return;
+    }
+    if (clicks < FARM_PRICE) {
+      alert("Недостаточно яиц");
+      return;
+    }
+    clicks -= FARM_PRICE;
+    farmCount++;
+    updateUI();
+    await saveGameData();
+  };
+
+  upgradeBtn.onclick = async () => {
+    if (farmLevel >= MAX_LEVEL) {
+      alert("Максимальный уровень фермы");
+      return;
+    }
+    if (farmCount === 0) {
+      alert("Сначала купи ферму");
+      return;
+    }
+    if (clicks < UPGRADE_PRICE) {
+      alert("Недостаточно яиц");
+      return;
+    }
+    clicks -= UPGRADE_PRICE;
+    farmLevel++;
+    updateUI();
+    await saveGameData();
+  };
+
+  skinSelect.onchange = async () => {
+    const selectedSkin = skinSelect.value;
+    if (ownedSkins.has(selectedSkin)) {
+      skin = selectedSkin;
+      updateUI();
+      await saveGameData();
+      return;
+    }
+    // Если скин не куплен, проверить цену
+    const cost = SKIN_COSTS[selectedSkin];
+    if (clicks >= cost) {
+      if (confirm(`Купить скин за ${cost} яиц?`)) {
+        clicks -= cost;
+        ownedSkins.add(selectedSkin);
+        skin = selectedSkin;
+        updateUI();
+        await saveGameData();
+      } else {
+        // Вернуть выбор к текущему скину
+        skinSelect.value = skin;
+      }
+    } else {
+      alert("Недостаточно яиц для покупки этого скина");
+      skinSelect.value = skin;
+    }
+  };
+
 </script>
 </body>
 </html>
