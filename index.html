@@ -7,7 +7,7 @@
     body {
       margin: 0;
       padding: 0;
-      background: linear-gradient(135deg, #fdfbfb, #fff9e6); /* чуть желтоватый фон */
+      background: linear-gradient(135deg, #fdfbfb, #fff9e6);
       font-family: 'Segoe UI', sans-serif;
       display: flex;
       flex-direction: column;
@@ -16,24 +16,20 @@
       height: 100vh;
       user-select: none;
     }
-
     h1 {
       margin: 20px 0 10px;
       font-size: 36px;
       color: #333;
     }
-
     #egg {
       font-size: 120px;
       cursor: pointer;
       transition: transform 0.2s ease;
       filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
     }
-
     #egg:active {
       transform: scale(0.9);
     }
-
     #counter {
       margin: 15px;
       font-size: 24px;
@@ -43,7 +39,6 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       color: #333;
     }
-
     .shop {
       margin-top: 30px;
       width: 320px;
@@ -52,13 +47,11 @@
       padding: 20px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-
     .shop h2 {
       margin-top: 0;
       font-size: 24px;
       color: #444;
     }
-
     .item {
       display: flex;
       justify-content: space-between;
@@ -68,7 +61,6 @@
       background: #f8f8f8;
       border-radius: 8px;
     }
-
     .item button {
       background: #4caf50;
       color: white;
@@ -78,34 +70,27 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-
     .item button:hover:not(.disabled) {
       background: #45a049;
     }
-
     .upgrade {
       background: #2196f3;
     }
-
     .upgrade:hover:not(.disabled) {
       background: #1976d2;
     }
-
     .disabled {
       background: #ccc !important;
       cursor: not-allowed;
     }
-
     .skins {
       margin-top: 20px;
     }
-
     .skins select {
       padding: 6px 10px;
       border-radius: 6px;
       font-size: 16px;
     }
-
     #loginBtn {
       margin-top: 20px;
       padding: 10px 20px;
@@ -117,11 +102,9 @@
       color: white;
       transition: background 0.3s;
     }
-
     #loginBtn:hover {
       background: #357ae8;
     }
-
     #userInfo {
       margin-top: 10px;
       font-size: 16px;
@@ -165,9 +148,8 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js";
   import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-firestore.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.3.1/firebase-auth.js";
 
-  // Твоя конфигурация Firebase:
   const firebaseConfig = {
     apiKey: "AIzaSyDjLs-TCbJbpqdXhKwuu2t1cjTjWQHYB-g",
     authDomain: "eggclick-e90e2.firebaseapp.com",
@@ -194,14 +176,12 @@
   const upgradeBtn = document.getElementById('upgradeBtn');
   const skinSelect = document.getElementById('skinSelect');
 
-  // Игровые данные
   let userId = null;
   let clicks = 0;
   let farmCount = 0;
   let farmLevel = 1;
   let skin = "🥚";
 
-  // Ограничения
   const MAX_FARMS = 5;
   const MAX_LEVEL = 10;
   const FARM_PRICE = 200;
@@ -214,7 +194,6 @@
     "🥚🥚": 15000
   };
 
-  // Состояние купленных скинов
   let ownedSkins = new Set(["🥚"]);
 
   loginBtn.onclick = async () => {
@@ -234,10 +213,12 @@
 
       await loadGameData();
       updateUI();
+      startAutoClicker();
     } else {
       userInfo.textContent = "";
       loginBtn.style.display = 'block';
       gameDiv.style.display = 'none';
+      stopAutoClicker();
     }
   });
 
@@ -253,7 +234,6 @@
       skin = data.skin || "🥚";
       ownedSkins = new Set(data.ownedSkins || ["🥚"]);
     } else {
-      // Если данных нет, создаём начальные
       await saveGameData();
     }
   }
@@ -266,107 +246,98 @@
       farmCount,
       farmLevel,
       skin,
-      ownedSkins: Array.from(ownedSkins),
+      ownedSkins: Array.from(ownedSkins)
     });
   }
 
   function updateUI() {
-    counterDisplay.textContent = `Клики: ${clicks}`;
+    counterDisplay.textContent = `Клики: ${Math.floor(clicks)}`;
     farmCountDisplay.textContent = farmCount;
     farmLevelDisplay.textContent = farmLevel;
     egg.textContent = skin;
 
-    buyFarmBtn.disabled = (farmCount >= MAX_FARMS || clicks < FARM_PRICE);
-    buyFarmBtn.classList.toggle('disabled', buyFarmBtn.disabled);
+    buyFarmBtn.disabled = clicks < FARM_PRICE || farmCount >= MAX_FARMS;
+    upgradeBtn.disabled = clicks < UPGRADE_PRICE || farmLevel >= MAX_LEVEL;
 
-    upgradeBtn.disabled = (farmLevel >= MAX_LEVEL || farmCount === 0 || clicks < UPGRADE_PRICE);
-    upgradeBtn.classList.toggle('disabled', upgradeBtn.disabled);
-
-    // Обновляем скин селектор — блокируем те, что нельзя купить (если нет)
-    for (let i = 0; i < skinSelect.options.length; i++) {
-      const opt = skinSelect.options[i];
-      const cost = SKIN_COSTS[opt.value];
-      opt.disabled = (!ownedSkins.has(opt.value) && clicks < cost);
-      // Если не владеешь и денег нет, заблокировать
+    // Скины в селекте — отключаем те, что не куплены
+    for (const option of skinSelect.options) {
+      option.disabled = !ownedSkins.has(option.value);
     }
-
-    // Если текущий скин не в ownedSkins, переключить на классический
+    // Если текущий скин не в ownedSkins — ставим классическую 🥚
     if (!ownedSkins.has(skin)) {
       skin = "🥚";
       skinSelect.value = skin;
-      saveGameData();
     } else {
       skinSelect.value = skin;
     }
   }
 
-  egg.onclick = async () => {
-    clicks += farmLevel; // Нажатие добавляет клики, с учётом уровня фермы
+  egg.onclick = () => {
+    clicks += farmLevel; // Добавляем клики с учетом уровня фермы
     updateUI();
-    await saveGameData();
+    saveGameData();
   };
 
-  buyFarmBtn.onclick = async () => {
-    if (farmCount >= MAX_FARMS) {
-      alert("Максимум ферм достигнут");
-      return;
+  buyFarmBtn.onclick = () => {
+    if (clicks >= FARM_PRICE && farmCount < MAX_FARMS) {
+      clicks -= FARM_PRICE;
+      farmCount++;
+      updateUI();
+      saveGameData();
     }
-    if (clicks < FARM_PRICE) {
-      alert("Недостаточно яиц");
-      return;
-    }
-    clicks -= FARM_PRICE;
-    farmCount++;
-    updateUI();
-    await saveGameData();
   };
 
-  upgradeBtn.onclick = async () => {
-    if (farmLevel >= MAX_LEVEL) {
-      alert("Максимальный уровень фермы");
-      return;
+  upgradeBtn.onclick = () => {
+    if (clicks >= UPGRADE_PRICE && farmLevel < MAX_LEVEL) {
+      clicks -= UPGRADE_PRICE;
+      farmLevel++;
+      updateUI();
+      saveGameData();
     }
-    if (farmCount === 0) {
-      alert("Сначала купи ферму");
-      return;
-    }
-    if (clicks < UPGRADE_PRICE) {
-      alert("Недостаточно яиц");
-      return;
-    }
-    clicks -= UPGRADE_PRICE;
-    farmLevel++;
-    updateUI();
-    await saveGameData();
   };
 
-  skinSelect.onchange = async () => {
+  skinSelect.onchange = () => {
     const selectedSkin = skinSelect.value;
     if (ownedSkins.has(selectedSkin)) {
       skin = selectedSkin;
       updateUI();
-      await saveGameData();
-      return;
-    }
-    // Если скин не куплен, проверить цену
-    const cost = SKIN_COSTS[selectedSkin];
-    if (clicks >= cost) {
-      if (confirm(`Купить скин за ${cost} яиц?`)) {
+      saveGameData();
+    } else {
+      // Если скин не куплен, пробуем купить
+      const cost = SKIN_COSTS[selectedSkin] || 0;
+      if (clicks >= cost) {
         clicks -= cost;
         ownedSkins.add(selectedSkin);
         skin = selectedSkin;
         updateUI();
-        await saveGameData();
+        saveGameData();
       } else {
-        // Вернуть выбор к текущему скину
-        skinSelect.value = skin;
+        alert("Недостаточно кликов для покупки скина");
+        skinSelect.value = skin; // вернуть предыдущий выбор
       }
-    } else {
-      alert("Недостаточно яиц для покупки этого скина");
-      skinSelect.value = skin;
     }
   };
 
+  let autoClickerInterval = null;
+
+  function startAutoClicker() {
+    if (autoClickerInterval) clearInterval(autoClickerInterval);
+    autoClickerInterval = setInterval(() => {
+      if (farmCount > 0) {
+        // Каждый тик добавляем клики от ферм * уровень
+        clicks += farmCount * farmLevel * 0.1; // 0.1 клика в секунду за каждую ферму на уровень
+        updateUI();
+        saveGameData();
+      }
+    }, 1000);
+  }
+
+  function stopAutoClicker() {
+    if (autoClickerInterval) {
+      clearInterval(autoClickerInterval);
+      autoClickerInterval = null;
+    }
+  }
 </script>
 </body>
 </html>
